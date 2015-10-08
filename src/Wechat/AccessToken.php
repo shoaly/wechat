@@ -14,6 +14,7 @@
  */
 
 namespace Overtrue\Wechat;
+use Illuminate\Support\Facades\Cache as SystemCache;
 
 /**
  * 全局通用 AccessToken
@@ -89,33 +90,35 @@ class AccessToken
      */
     public function getToken()
     {
-        if ($this->token) {
-            return $this->token;
-        }
-
+         //如果是测试 那么, 每次都会获取新的 accessToken
+        
+        $cacheKey    = $this->cacheKey;
         // for php 5.3
         $appId       = $this->appId;
         $appSecret   = $this->appSecret;
-        $cache       = $this->cache;
-        $cacheKey    = $this->cacheKey;
+         
         $apiTokenGet = self::API_TOKEN_GET;
+        
+        $params = array(
+                   'appid'      => $appId,
+                   'secret'     => $appSecret,
+                   'grant_type' => 'client_credential',
+                  );
 
-        return $this->token = $this->cache->get(
-            $cacheKey,
-            function ($cacheKey) use ($appId, $appSecret, $cache, $apiTokenGet) {
-                $params = array(
-                           'appid'      => $appId,
-                           'secret'     => $appSecret,
-                           'grant_type' => 'client_credential',
-                          );
-                $http = new Http();
+        $token = SystemCache::store('database')->remember($cacheKey,60,function() use($cacheKey,$params,$apiTokenGet){
+            $http = new Http();
+            $token = $http->get($apiTokenGet, $params);
 
-                $token = $http->get($apiTokenGet, $params);
+            return $token['access_token'];
+        });
 
-                $cache->set($cacheKey, $token['access_token'], $token['expires_in']);
+        // SystemCache::store('database')->put('foo','bar',30);
+        // dd(SystemCache::store('database')->get('foo'));
+        return $token;
+        
+        
 
-                return $token['access_token'];
-            }
-        );
+         
+        
     }
 }

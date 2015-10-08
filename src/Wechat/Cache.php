@@ -147,6 +147,7 @@ class Cache
      */
     protected function getCacheFile($key)
     {
-        return sys_get_temp_dir().DIRECTORY_SEPARATOR.md5($this->prefix.$key);
+        return sys_get_temp_dir().DIRECTORY_SEPARATOR.'by_'.php_sapi_name().'_'.md5($this->prefix.$key);
+        
     }
 }
