@@ -1,4 +1,4 @@
-# Wechat
+# Wechat - 肖旭 fork
 
 [English](README_EN.md)
 
