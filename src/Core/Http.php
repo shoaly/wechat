@@ -117,11 +117,12 @@ class Http
      *
      * @throws HttpException
      */
-     public function json($url, $options = [], $encodeOption = JSON_UNESCAPED_UNICODE, $queries = [])
+    public function json($url, $options = [], $queries = [], $encodeOption = JSON_UNESCAPED_UNICODE)
     {
         is_array($options) && $options = json_encode($options, $encodeOption);
         return $this->request($url, 'POST', ['query' => $queries,'body' => $options, 'headers' => ['content-type' => 'application/json']]);
     }
+
 
     /**
      * Upload file.
